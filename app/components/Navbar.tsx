@@ -69,9 +69,10 @@ export default function Navbar() {
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
+      {/* Top Main Nav */}
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between border-b border-gray-100">
         <Link href="/" className="flex items-center gap-3">
-          <span className="w-10 h-10 flex items-center justify-center text-lg bg-green-800 text-white rounded-2xl shadow-sm">🛒</span>
+          <span className="w-10 h-10 flex items-center justify-center text-lg bg-green-700 text-white rounded-2xl shadow-sm">🛒</span>
           <div>
             <h1 className="text-xl font-bold text-green-700 flex items-center gap-2">
               বাজার দর
@@ -80,6 +81,7 @@ export default function Navbar() {
           </div>
         </Link>
 
+        {/* Auth Buttons / User State */}
         <div className="flex items-center gap-3">
           {isLoggedIn ? (
             <div className="flex items-center gap-2">
@@ -88,7 +90,7 @@ export default function Navbar() {
               </Link>
               <button 
                 onClick={() => setIsLoggedIn(false)}
-                className="px-3 py-1.5 text-sm bg-red-50 text-red-600 rounded-md hover:bg-red-100"
+                className="px-3 py-1.5 text-sm bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition"
               >
                 লগআউট
               </button>
@@ -97,13 +99,13 @@ export default function Navbar() {
             <>
               <Link 
                 href="/signin" 
-                className="px-4 py-1.5 text-sm font-medium text-green-700 border border-green-600 rounded-md hover:bg-green-50"
+                className="px-4 py-1.5 text-sm font-medium text-green-700 border border-green-600 rounded-md hover:bg-green-50 transition"
               >
                 সাইন ইন
               </Link>
               <Link 
                 href="/signup" 
-                className="px-4 py-1.5 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
+                className="px-4 py-1.5 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition"
               >
                 সাইন আপ
               </Link>
@@ -112,6 +114,7 @@ export default function Navbar() {
         </div>
       </div>
 
+      {/* Second Row: Category Navigation Links */}
       <nav className="max-w-7xl mx-auto px-4 py-2.5 overflow-x-auto scrollbar-none border-b border-gray-100 bg-gray-50/50">
         <ul className="flex items-center gap-3 min-w-max">
           <li>
@@ -145,14 +148,28 @@ export default function Navbar() {
         </ul>
       </nav>
 
-      <div className="bg-green-700 text-white text-xs py-2 overflow-hidden whitespace-nowrap shadow-inner">
-        <div className="inline-block animate-marquee px-4 font-medium">
-          <span className="mx-6">🍚 স্বর্ণমাছি চাল: ১৪৮ টাকা/কেজি (▲ ২.১%)</span>
-          <span className="mx-6">🥔 আলু: ৫৫ টাকা/কেজি (▼ ১.৫%)</span>
-          <span className="mx-6">🧅 পেঁয়াজ: ১১০ টাকা/কেজি (▲ ৩.০%)</span>
-          <span className="mx-6">🐟 ইলিশ মাছ: ১,২৫০ টাকা/কেজি (— ০.০%)</span>
-          <span className="mx-6">🫘 মসুর ডাল: ১৪০ টাকা/কেজি (▲ ১.২%)</span>
-          <span className="mx-6">🛢️ সয়াবিন তেল: ১৭৫ টাকা/লিটার (▲ ০.৮%)</span>
+      {/* Third Row: Price Ticker / Marquee using HTML marquee tag or inline styles */}
+      {/* Third Row: Price Ticker / Marquee */}
+      <div className="bg-green-50 text-green-900 text-xs py-2 overflow-hidden shadow-inner border-b border-green-100">
+        <div className="animate-marquee-custom">
+          {/* প্রথম সেট */}
+          <div className="flex items-center shrink-0">
+            <span className="mx-6">🍚 স্বর্ণমাছি চাল: ১৪৮ টাকা/কেজি (▲ ২.১%)</span>
+            <span className="mx-6">🥔 আলু: ৫৫ টাকা/কেজি (▼ ১.৫%)</span>
+            <span className="mx-6">🧅 পেঁয়াজ: ১১০ টাকা/কেজি (▲ ৩.০%)</span>
+            <span className="mx-6">🐟 ইলিশ মাছ: ১,২৫০ টাকা/কেজি (— ০.০%)</span>
+            <span className="mx-6">🫘 মসুর ডাল: ১৪০ টাকা/কেজি (▲ ১.২%)</span>
+            <span className="mx-6">🛢️ সয়াবিন তেল: ১৭৫ টাকা/লিটার (▲ ০.৮%)</span>
+          </div>
+          {/* নিরবচ্ছিন্ন লুপের জন্য ডুপ্লিকেট সেট */}
+          <div className="flex items-center shrink-0" aria-hidden="true">
+            <span className="mx-6">🍚 স্বর্ণমাছি চাল: ১৪৮ টাকা/কেজি (▲ ২.১%)</span>
+            <span className="mx-6">🥔 আলু: ৫৫ টাকা/কেজি (▼ ১.৫%)</span>
+            <span className="mx-6">🧅 পেঁয়াজ: ১১০ টাকা/কেজি (▲ ৩.০%)</span>
+            <span className="mx-6">🐟 ইলিশ মাছ: ১,২৫০ টাকা/কেজি (— ০.০%)</span>
+            <span className="mx-6">🫘 মসুর ডাল: ১৪০ টাকা/কেজি (▲ ১.২%)</span>
+            <span className="mx-6">🛢️ সয়াবিন তেল: ১৭৫ টাকা/লিটার (▲ ০.৮%)</span>
+          </div>
         </div>
       </div>
     </header>
