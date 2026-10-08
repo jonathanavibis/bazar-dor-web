@@ -67,6 +67,15 @@ export default function Navbar() {
       .catch((err) => console.error("Error fetching categories:", err));
   }, []);
 
+  const tickerItems = [
+    { text: "🍚 স্বর্ণমাছি চাল: ১৪৮ টাকা/কেজি", change: "▲ ২.১%", type: "up" },
+    { text: "🥔 আলু: ৫৫ টাকা/কেজি", change: "▼ ১.৫%", type: "down" },
+    { text: "🧅 পেঁয়াজ: ১১০ টাকা/কেজি", change: "▲ ৩.০%", type: "up" },
+    { text: "🐟 ইলিশ মাছ: ১,২৫০ টাকা/কেজি", change: "— ০.০%", type: "flat" },
+    { text: "🫘 মসুর ডাল: ১৪০ টাকা/কেজি", change: "▲ ১.২%", type: "up" },
+    { text: "🛢️ সয়াবিন তেল: ১৭৫ টাকা/লিটার", change: "▲ ০.৮%", type: "up" },
+  ];
+
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       {/* Top Main Nav */}
@@ -148,27 +157,46 @@ export default function Navbar() {
         </ul>
       </nav>
 
-      {/* Third Row: Price Ticker / Marquee using HTML marquee tag or inline styles */}
-      {/* Third Row: Price Ticker / Marquee */}
-      <div className="bg-green-50 text-green-900 text-xs py-2 overflow-hidden shadow-inner border-b border-green-100">
-        <div className="animate-marquee-custom">
+      {/* Third Row: Price Ticker / Marquee with Dynamic Red/Green Colors */}
+      <div className="bg-gray-50 text-xs py-2 overflow-hidden shadow-inner border-b border-gray-200">
+        <div className="flex animate-marquee whitespace-nowrap items-center">
           {/* প্রথম সেট */}
-          <div className="flex items-center shrink-0">
-            <span className="mx-6">🍚 স্বর্ণমাছি চাল: ১৪৮ টাকা/কেজি (▲ ২.১%)</span>
-            <span className="mx-6">🥔 আলু: ৫৫ টাকা/কেজি (▼ ১.৫%)</span>
-            <span className="mx-6">🧅 পেঁয়াজ: ১১০ টাকা/কেজি (▲ ৩.০%)</span>
-            <span className="mx-6">🐟 ইলিশ মাছ: ১,২৫০ টাকা/কেজি (— ০.০%)</span>
-            <span className="mx-6">🫘 মসুর ডাল: ১৪০ টাকা/কেজি (▲ ১.২%)</span>
-            <span className="mx-6">🛢️ সয়াবিন তেল: ১৭৫ টাকা/লিটার (▲ ০.৮%)</span>
+          <div className="flex items-center shrink-0 gap-8 px-4">
+            {tickerItems.map((item, idx) => (
+              <div key={idx} className="flex items-center gap-1.5">
+                <span className="font-medium text-gray-800">{item.text}</span>
+                <span
+                  className={`font-semibold ${
+                    item.type === "up"
+                      ? "text-red-600"
+                      : item.type === "down"
+                      ? "text-green-600"
+                      : "text-gray-500"
+                  }`}
+                >
+                  {item.change}
+                </span>
+              </div>
+            ))}
           </div>
-          {/* নিরবচ্ছিন্ন লুপের জন্য ডুপ্লিকেট সেট */}
-          <div className="flex items-center shrink-0" aria-hidden="true">
-            <span className="mx-6">🍚 স্বর্ণমাছি চাল: ১৪৮ টাকা/কেজি (▲ ২.১%)</span>
-            <span className="mx-6">🥔 আলু: ৫৫ টাকা/কেজি (▼ ১.৫%)</span>
-            <span className="mx-6">🧅 পেঁয়াজ: ১১০ টাকা/কেজি (▲ ৩.০%)</span>
-            <span className="mx-6">🐟 ইলিশ মাছ: ১,২৫০ টাকা/কেজি (— ০.০%)</span>
-            <span className="mx-6">🫘 মসুর ডাল: ১৪০ টাকা/কেজি (▲ ১.২%)</span>
-            <span className="mx-6">🛢️ সয়াবিন তেল: ১৭৫ টাকা/লিটার (▲ ০.৮%)</span>
+          {/* লুপ স্মুথ রাখার জন্য ডুপ্লিকেট সেট */}
+          <div className="flex items-center shrink-0 gap-8 px-4" aria-hidden="true">
+            {tickerItems.map((item, idx) => (
+              <div key={`dup-${idx}`} className="flex items-center gap-1.5">
+                <span className="font-medium text-gray-800">{item.text}</span>
+                <span
+                  className={`font-semibold ${
+                    item.type === "up"
+                      ? "text-red-600"
+                      : item.type === "down"
+                      ? "text-green-600"
+                      : "text-gray-500"
+                  }`}
+                >
+                  {item.change}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </div>

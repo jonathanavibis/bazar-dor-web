@@ -10,12 +10,12 @@
   }
 }
 
-.animate-marquee-custom {
+.animate-marquee {
   display: flex;
   width: max-content;
   animation: marquee 25s linear infinite;
 }
 
-.animate-marquee-custom:hover {
+.animate-marquee:hover {
   animation-play-state: paused;
 }
