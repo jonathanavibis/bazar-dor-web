@@ -2,13 +2,19 @@ import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { MongoClient } from "mongodb";
 
-const client = new MongoClient(process.env.MONGODB_URI || "mongodb://localhost:27017/bazar-dor");
-const db = client.db();
+const uri = process.env.MONGODB_URI;
+if (!uri) throw new Error("MONGODB_URI is missing in .env.local");
+
+// reuse one connection during hot reload
+const g = globalThis as unknown as { _mongo?: MongoClient };
+const client = g._mongo ?? new MongoClient(uri);
+if (process.env.NODE_ENV !== "production") g._mongo = client;
 
 export const auth = betterAuth({
-  database: mongodbAdapter(db),
+  database: mongodbAdapter(client.db()),
   emailAndPassword: {
     enabled: true,
+    autoSignIn: false, // after sign-up, user goes to the login page (assignment rule)
   },
   socialProviders: {
     google: {
