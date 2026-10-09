@@ -3,23 +3,34 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+import { signIn } from "@/lib/auth-client";
 
 export default function SignInPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleCredentialsSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
 
     try {
-      toast.success("সফলভাবে সাইন ইন সম্পন্ন হয়েছে!");
-      router.push("/");
+      await signIn.email({
+        email,
+        password,
+      }, {
+        onSuccess: () => {
+          router.push("/");
+        },
+        onError: (ctx) => {
+          setError(ctx.error.message || "লগইন করতে সমস্যা হয়েছে!");
+        }
+      });
     } catch (err: any) {
-      toast.error(err?.message || "লগইন করতে সমস্যা হয়েছে!");
+      setError(err?.message || "লগইন করতে সমস্যা হয়েছে!");
     } finally {
       setLoading(false);
     }
@@ -27,10 +38,12 @@ export default function SignInPage() {
 
   const handleSocialLogin = async (provider: "google" | "github") => {
     try {
-      toast.success(`${provider.toUpperCase()} দিয়ে সফলভাবে লগইন হয়েছে!`);
-      router.push("/");
-    } catch {
-      toast.error("সোশ্যাল লগইন ব্যর্থ হয়েছে!");
+      await signIn.social({
+        provider: provider,
+        callbackURL: "/",
+      });
+    } catch (err: any) {
+      setError("সোশ্যাল লগইন ব্যর্থ হয়েছে!");
     }
   };
 
@@ -38,10 +51,18 @@ export default function SignInPage() {
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12 bg-gray-50">
       <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-sm border border-gray-100">
         <div className="text-center mb-8">
-          <span className="w-10 h-10 mx-auto flex items-center justify-center text-lg bg-green-700 text-white rounded-2xl shadow-sm">🛒</span>
-          <h2 className="text-2xl font-bold text-green-700 mt-2">বাজার দরে স্বাগতম</h2>
+          <div className="w-12 h-12 mx-auto flex items-center justify-center text-xl bg-green-700 text-white rounded-2xl shadow-sm">
+            🛒
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mt-3">বাজার দরে স্বাগতম</h2>
           <p className="text-sm text-gray-500 mt-1">আপনার অ্যাকাউন্টে সাইন ইন করুন</p>
         </div>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-100">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleCredentialsSignIn} className="space-y-4">
           <div>
@@ -52,7 +73,7 @@ export default function SignInPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 text-sm"
             />
           </div>
 
@@ -64,14 +85,14 @@ export default function SignInPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 text-sm"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-green-600 text-white rounded-md font-medium hover:bg-green-700 transition shadow-sm text-sm"
+            className="w-full py-2.5 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition shadow-sm text-sm"
           >
             {loading ? "অপেক্ষা করুন..." : "সাইন ইন"}
           </button>
@@ -87,35 +108,51 @@ export default function SignInPage() {
         </div>
 
         <div className="grid grid-cols-2 gap-3">
+          {/* গুগল বাটন */}
           <button
+            type="button"
             onClick={() => handleSocialLogin("google")}
-            className="w-full py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-2"
+            className="w-full py-2.5 px-4 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-2 shadow-xs"
           >
-            <svg className="w-4 h-4" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+            <svg className="w-5 h-5" viewBox="0 0 24 24">
+              <path
+                fill="#EA4335"
+                d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.9C6.2 7.3 8.9 5 12 5z"
+              />
+              <path
+                fill="#4285F4"
+                d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.3 14.7c-.2-.7-.3-1.5-.3-2.3s.1-1.6.3-2.3L1.6 7.2C.6 9.2 0 11.5 0 14s.6 4.8 1.6 6.8l3.7-2.9c-.3-.8-.5-1.9-.5-3.2z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.3-6.7-5.3L1.6 15.9C3.5 19.7 7.4 23 12 23z"
+              />
             </svg>
-            গুগল দিয়ে চালিয়ে যান
+            গুগল
           </button>
+          
+          {/* গিটহ্যাব বাটন */}
           <button
+            type="button"
             onClick={() => handleSocialLogin("github")}
-            className="w-full py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-2"
+            className="w-full py-2.5 px-4 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-2 shadow-xs"
           >
-            <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+            <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+              <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
             </svg>
-            গিটহ্যাব দিয়ে চালিয়ে যান
+            গিটহ্যাব
           </button>
         </div>
 
         <p className="text-center text-sm text-gray-600 mt-6">
           কোনো অ্যাকাউন্ট নেই?{" "}
           <Link href="/signup" className="text-green-600 font-medium hover:underline">
-            সাইন আপ 
+            সাইন আপ করুন
           </Link>
-          {" "}করুন
         </p>
       </div>
     </div>

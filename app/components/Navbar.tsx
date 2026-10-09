@@ -16,6 +16,7 @@ export default function Navbar() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [banglaDateStr, setBanglaDateStr] = useState("");
+  const [showTicker, setShowTicker] = useState(true); // স্ক্রল ট্র্যাক করার জন্য স্টেট
 
   useEffect(() => {
     const toBanglaNumber = (num: number) => {
@@ -54,8 +55,22 @@ export default function Navbar() {
     }
   }, []);
 
+  // স্ক্রল হ্যান্ডলার: পেজ একদম উপরে (scrollY === 0) থাকলে টিকার দেখাবে, নিচে নামলে লুকিয়ে যাবে
   useEffect(() => {
-    fetch("https://api.api-store.workers.dev/api/bazardor/categories")
+    const handleScroll = () => {
+      if (window.scrollY === 0) {
+        setShowTicker(true);
+      } else {
+        setShowTicker(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    fetch("https://api.abcz.workers.dev/api/bazardor/categories")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
@@ -157,8 +172,12 @@ export default function Navbar() {
         </ul>
       </nav>
 
-      {/* Third Row: Price Ticker / Marquee with Dynamic Red/Green Colors */}
-      <div className="bg-gray-50 text-xs py-2 overflow-hidden shadow-inner border-b border-gray-200">
+      {/* Third Row: Price Ticker / Marquee (স্ক্রল করলে হাইড হবে, টপে আসলে দেখাবে) */}
+      <div 
+        className={`bg-gray-50 text-xs overflow-hidden shadow-inner border-b border-gray-200 transition-all duration-300 ease-in-out ${
+          showTicker ? "max-h-16 py-2 opacity-100" : "max-h-0 py-0 opacity-0 border-b-0"
+        }`}
+      >
         <div className="flex animate-marquee whitespace-nowrap items-center">
           {/* প্রথম সেট */}
           <div className="flex items-center shrink-0 gap-8 px-4">

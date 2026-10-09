@@ -2,7 +2,6 @@ import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { MongoClient } from "mongodb";
 
-// আপনার MongoDB কানেকশন স্ট্রিং দিয়ে ক্লায়েন্ট তৈরি করুন
 const client = new MongoClient(process.env.MONGODB_URI || "mongodb://localhost:27017/bazar-dor");
 const db = client.db();
 

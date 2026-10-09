@@ -17,6 +17,8 @@ export const metadata: Metadata = {
   description: "Essential market prices in Bangladesh",
 };
 
+
+
 export default function RootLayout({ 
   children 
 }: { 
@@ -28,7 +30,7 @@ export default function RootLayout({
       className={`${noteSerifBengali.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-gray-50">
-        <Navbar />
+       <Navbar />
       {children}
       </body>
     </html>
