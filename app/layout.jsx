@@ -1,0 +1,42 @@
+import "./globals.css";
+import { Noto_Sans_Bengali } from "next/font/google";
+import { Toaster } from "react-hot-toast";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import { getCategories } from "@/lib/categories";
+import { getProducts } from "@/lib/product";
+import { formatPct, formatPrice, unitLabel } from "@/lib/bn";
+
+const bengali = Noto_Sans_Bengali({
+  subsets: ["bengali", "latin"],
+  display: "swap",
+});
+
+export const metadata = {
+  title: "বাজার দর — আজকের বাজারের দাম এক নজরে",
+  description:
+    "চাল, ডাল, তেল, সবজি, মাছ, মাংস, ডিম ও মসলার আজকের দাম এবং দামের পরিবর্তন এক জায়গায়।",
+};
+
+export default async function RootLayout({ children }) {
+  const categories = await getCategories();
+  const products = await getProducts().catch(() => []);
+
+  // data for the scrolling price ticker under the navbar
+  const tickerItems = products.map((p) => ({
+    text: `${p.icon} ${p.nameBn}: ${formatPrice(p.today)} টাকা/${unitLabel(p.unit).replace("প্রতি ", "")}`,
+    change: `${p.dir === "up" ? "▲" : p.dir === "down" ? "▼" : "—"} ${formatPct(p.pct)}%`,
+    type: p.dir,
+  }));
+
+  return (
+    <html lang="bn">
+      <body className={`${bengali.className} min-h-screen flex flex-col`}>
+        <Navbar categories={categories} tickerItems={tickerItems} />
+        <div className="flex-1">{children}</div>
+        <Footer />
+        <Toaster position="top-center" />
+      </body>
+    </html>
+  );
+}
