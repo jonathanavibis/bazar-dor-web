@@ -16,6 +16,9 @@ export const metadata = {
   title: "বাজার দর — আজকের বাজারের দাম এক নজরে",
   description:
     "চাল, ডাল, তেল, সবজি, মাছ, মাংস, ডিম ও মসলার আজকের দাম এবং দামের পরিবর্তন এক জায়গায়।",
+  // Stops Chrome's Google Translate from rewriting <html lang="bn"> into
+  // lang="en" class="translated-ltr" (that rewrite breaks hydration).
+  other: { google: "notranslate" },
 };
 
 export default async function RootLayout({ children }) {
@@ -30,8 +33,15 @@ export default async function RootLayout({ children }) {
   }));
 
   return (
-    <html lang="bn">
-      <body className={`${bengali.className} min-h-screen flex flex-col`}>
+    // Browser extensions (Google Translate, Webex, Grammarly, ...) add
+    // attributes like lang="en", class="translated-ltr" or
+    // cz-shortcut-listen="true" before React hydrates. Those are not our
+    // attributes, so React is told to ignore them on <html>/<body>.
+    <html lang="bn" suppressHydrationWarning>
+      <body
+        className={`${bengali.className} min-h-screen flex flex-col`}
+        suppressHydrationWarning
+      >
         <Navbar categories={categories} tickerItems={tickerItems} />
         <div className="flex-1">{children}</div>
         <Footer />

@@ -1,4 +1,6 @@
-import { auth } from "@/lib/auth";
+import { getAuth } from "@/lib/auth";
 import { toNextJsHandler } from "better-auth/next-js";
 
-export const { GET, POST } = toNextJsHandler(auth);
+// getAuth() runs per request: if the MongoDB client died (e.g. "Topology is
+// closed" after a failed connect) it is rebuilt instead of failing forever.
+export const { GET, POST } = toNextJsHandler((request) => getAuth().handler(request));

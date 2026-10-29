@@ -16,28 +16,27 @@ export default function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [socialLoading, setSocialLoading] = useState(false);
 
-  // States for toggling password visibility
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // already signed in -> go home
   useEffect(() => {
     if (session) router.replace("/");
   }, [session, router]);
 
-  // Google/GitHub send the user back here with ?error=... when login fails
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("error")) {
-      toast.error("সোশ্যাল লগইন ব্যর্থ হয়েছে!", { id: "social-error" });
-    }
-  }, []);
-
   const fail = (msg) => {
     setError(msg);
     toast.error(msg);
+  };
+
+  // Turns the API error into a useful Bengali message.
+  // 500 = the server/database is unreachable (nothing wrong with this form).
+  const failWith = (error, fallback) => {
+    const status = error?.status;
+    if (status >= 500) return fail("সার্ভার বা ডেটাবেসে সংযোগ করা যায়নি! একটু পরে আবার চেষ্টা করুন।");
+    if (status === 409) return fail("এই ইমেইল দিয়ে ইতিমধ্যে অ্যাকাউন্ট আছে!");
+    if (status === 429) return fail("অনেকবার চেষ্টা করা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।");
+    return fail(error?.message || fallback);
   };
 
   const handleCredentialsSignUp = async (e) => {
@@ -49,27 +48,24 @@ export default function SignUpPage() {
       return fail("পাসওয়ার্ড এবং কনফার্ম পাসওয়ার্ড মিলছে না!");
 
     setLoading(true);
-    const { error } = await signUp.email({ email, password, name });
-    setLoading(false);
+    try {
+      const { error } = await signUp.email({ email, password, name });
+      if (error) return failWith(error, "রেজিস্ট্রেশন করতে সমস্যা হয়েছে!");
 
-    if (error) return fail(error.message || "রেজিস্ট্রেশন করতে সমস্যা হয়েছে!");
-
-    toast.success("রেজিস্ট্রেশন সফল! এখন লগইন করুন");
-    router.push("/signin");
+      toast.success("রেজিস্ট্রেশন সফল! এখন লগইন করুন");
+      router.push("/signin");
+    } catch {
+      fail("সার্ভারে সংযোগ করা যায়নি! একটু পরে আবার চেষ্টা করুন।");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSocialLogin = async (provider) => {
-    setSocialLoading(true);
-    setError("");
-    const { error } = await signIn.social({
-      provider,
-      callbackURL: "/",
-      newUserCallbackURL: "/",
-      errorCallbackURL: "/signup",
-    });
-    if (error) {
-      console.error("Social login error:", error);
-      setSocialLoading(false);
+    try {
+      const { error } = await signIn.social({ provider, callbackURL: "/" });
+      if (error) failWith(error, "সোশ্যাল লগইন ব্যর্থ হয়েছে!");
+    } catch {
       fail("সোশ্যাল লগইন ব্যর্থ হয়েছে!");
     }
   };
@@ -119,7 +115,6 @@ export default function SignUpPage() {
             />
           </div>
 
-          {/* Password Field with Show/Hide Toggle */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">পাসওয়ার্ড</label>
             <div className="relative">
@@ -141,7 +136,6 @@ export default function SignUpPage() {
             </div>
           </div>
 
-          {/* Confirm Password Field with Show/Hide Toggle */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">কনফার্ম পাসওয়ার্ড</label>
             <div className="relative">
@@ -181,7 +175,7 @@ export default function SignUpPage() {
           </div>
         </div>
 
-        <SocialButtons onSocial={handleSocialLogin} disabled={socialLoading || loading} />
+        <SocialButtons onSocial={handleSocialLogin} />
 
         <p className="text-center text-sm text-gray-600 mt-6">
           ইতিমধ্যে অ্যাকাউন্ট আছে?{" "}

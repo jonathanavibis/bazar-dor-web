@@ -1,13 +1,13 @@
 "use client";
 
 // Google + GitHub buttons shared by the sign-in and sign-up pages.
-export default function SocialButtons({ onSocial, disabled = false }) {
+export default function SocialButtons({ onSocial }) {
   const btn =
-    "w-full py-2.5 px-4 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed";
+    "w-full py-2.5 px-4 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-2";
 
   return (
     <div className="grid grid-cols-2 gap-3">
-      <button type="button" disabled={disabled} onClick={() => onSocial("google")} className={btn}>
+      <button type="button" onClick={() => onSocial("google")} className={btn}>
         <svg className="w-5 h-5" viewBox="0 0 24 24">
           <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.9C6.2 7.3 8.9 5 12 5z" />
           <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z" />
@@ -17,7 +17,7 @@ export default function SocialButtons({ onSocial, disabled = false }) {
         গুগল
       </button>
 
-      <button type="button" disabled={disabled} onClick={() => onSocial("github")} className={btn}>
+      <button type="button" onClick={() => onSocial("github")} className={btn}>
         <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
           <path
             fillRule="evenodd"

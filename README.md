@@ -52,18 +52,6 @@ npm run dev
 
 Open http://localhost:3000.
 
-### Social login setup
-
-**GitHub:** GitHub -> Settings -> Developer settings -> OAuth Apps -> New OAuth App.
-Homepage URL `http://localhost:3000`, callback URL `http://localhost:3000/api/auth/callback/github`.
-Copy the Client ID and a generated Client secret into `.env.local`.
-
-**Google:** Google Cloud Console -> APIs & Services -> Credentials -> OAuth client ID (Web application).
-Authorized origin `http://localhost:3000`, redirect URI `http://localhost:3000/api/auth/callback/google`.
-Add your Gmail as a test user while the consent screen is in Testing mode.
-
-A provider is enabled only when both its ID and secret are set in `.env.local`. Restart `npm run dev` after editing the file.
-
 ### Environment variables
 
 | Variable | Purpose |

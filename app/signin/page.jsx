@@ -14,7 +14,7 @@ export default function SignInPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [socialLoading, setSocialLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // already signed in -> go home
   useEffect(() => {
@@ -28,17 +28,19 @@ export default function SignInPage() {
     }
   }, []);
 
-  // Google/GitHub send the user back here with ?error=... when login fails
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("error")) {
-      toast.error("সোশ্যাল লগইন ব্যর্থ হয়েছে!", { id: "social-error" });
-    }
-  }, []);
-
   const fail = (msg) => {
     setError(msg);
     toast.error(msg);
+  };
+
+  // Turns the API error into a useful Bengali message.
+  // 500 = the server/database is unreachable (nothing wrong with this form).
+  const failWith = (error, fallback) => {
+    const status = error?.status;
+    if (status >= 500) return fail("সার্ভার বা ডেটাবেসে সংযোগ করা যায়নি! একটু পরে আবার চেষ্টা করুন।");
+    if (status === 429) return fail("অনেকবার চেষ্টা করা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।");
+    if (status === 401) return fail(fallback);
+    return fail(error?.message || fallback);
   };
 
   const handleCredentialsSignIn = async (e) => {
@@ -46,29 +48,25 @@ export default function SignInPage() {
     setLoading(true);
     setError("");
 
-    const { error } = await signIn.email({ email, password });
-    setLoading(false);
+    try {
+      const { error } = await signIn.email({ email, password });
+      if (error) return failWith(error, "ইমেইল বা পাসওয়ার্ড ভুল!");
 
-    if (error) return fail(error.message || "ইমেইল বা পাসওয়ার্ড ভুল!");
-
-    toast.success("সফলভাবে লগইন হয়েছে");
-    router.push("/");
-    router.refresh();
+      toast.success("সফলভাবে লগইন হয়েছে");
+      router.push("/");
+      router.refresh();
+    } catch {
+      fail("সার্ভারে সংযোগ করা যায়নি! একটু পরে আবার চেষ্টা করুন।");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSocialLogin = async (provider) => {
-    setSocialLoading(true);
-    setError("");
-    const { error } = await signIn.social({
-      provider,
-      callbackURL: "/",
-      newUserCallbackURL: "/",
-      errorCallbackURL: "/signin",
-    });
-    // on success the browser is redirected to Google/GitHub, so we only get here on failure
-    if (error) {
-      console.error("Social login error:", error);
-      setSocialLoading(false);
+    try {
+      const { error } = await signIn.social({ provider, callbackURL: "/" });
+      if (error) failWith(error, "সোশ্যাল লগইন ব্যর্থ হয়েছে!");
+    } catch {
       fail("সোশ্যাল লগইন ব্যর্থ হয়েছে!");
     }
   };
@@ -100,7 +98,24 @@ export default function SignInPage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">পাসওয়ার্ড</label>
-            <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className={input} />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 text-sm"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? "পাসওয়ার্ড লুকান" : "পাসওয়ার্ড দেখুন"}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 text-sm focus:outline-none"
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </button>
+            </div>
           </div>
 
           <button
@@ -121,7 +136,7 @@ export default function SignInPage() {
           </div>
         </div>
 
-        <SocialButtons onSocial={handleSocialLogin} disabled={socialLoading || loading} />
+        <SocialButtons onSocial={handleSocialLogin} />
 
         <p className="text-center text-sm text-gray-600 mt-6">
           কোনো অ্যাকাউন্ট নেই?{" "}
